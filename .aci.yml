@@ -1,0 +1,30 @@
+version: "1.5"
+
+stages:
+  - Parallel ACI
+  - 发布devPypi
+  - 发布正式库前检查
+  - 发布正式库
+
+onlyExecuteLastPipeline: true #同一个分支只执行一个ci
+
+only:
+  triggerType:
+    - pullRequest # 创建 PR
+    - push
+    - tagPush
+
+stc安全扫描:
+  stage: Parallel ACI
+  component: stc
+
+python代码检查:
+  stage: Parallel ACI
+  component: python-sast
+  config:
+    execute:
+      timeout: 600
+      isAllowSkip: true
+    afterExecute:
+      checkRule:
+        - ${{outputs.critical}} <= 300

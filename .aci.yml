@@ -28,3 +28,4 @@ python代码检查:
     afterExecute:
       checkRule:
         - ${{outputs.critical}} <= 300
+

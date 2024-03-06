@@ -27,12 +27,40 @@ python代码检查:
       checkRule:
         - ${{outputs.critical}} <= 300
 
-antc_发布依赖包:
+发布github:
   stage: 发布github
   component: shell-with-clone-and-output
+  only:
+    triggerType:
+      - pullRequest # 创建 PR PR期间push
+    triggerBranch:
+      prTargetBranch:
+        - ^master$
   inputs:
     script: |
+      git config --global user.email ${{pipeline.operatorEmail}}
+      git config --global user.name ${{pipeline.operatorEmail}}
       ant_token=${{secrets.ant_token}}
       source=${{vcs.pullRequestSourceBranch}}
       commitId=${{vcs.commitSha}}
-      add_output output "${commitId}"
+      num=${{pipeline.operatorEmpId}}
+      token=${{secrets.402302}}
+      cd $WORKSPACE
+      cd /home/
+      git clone -b ${source} https://xiaobao.lxx:${ant_token}@code.alipay.com/xiaobao_test/test_sync.git
+      cd test_sync
+      git remote add github git@github.com:liuxiaoxiao1121/test_sync.git
+      git remote -v
+      git remote set-url github https://${token}:x-oauth-basic@github.com/liuxiaoxiao1121/test_sync.git
+      git remote -v
+      git branch -a
+
+      git fetch github
+      git branch -a
+      
+      git checkout main
+      git merge --squash ${source}
+      git commit -m "test"
+      git push github main
+      
+      add_output output "${source}"

@@ -2,9 +2,7 @@ version: "1.5"
 
 stages:
   - Parallel ACI
-  - 发布devPypi
-  - 发布正式库前检查
-  - 发布正式库
+  - 发布github
 
 onlyExecuteLastPipeline: true #同一个分支只执行一个ci
 
@@ -29,3 +27,12 @@ python代码检查:
       checkRule:
         - ${{outputs.critical}} <= 300
 
+antc_发布依赖包:
+  stage: 发布github
+  component: shell-with-clone-and-output
+  inputs:
+    script: |
+      ant_token=${{secrets.ant_token}}
+      source=${{vcs.pullRequestSourceBranch}}
+      commitId=${{vcs.commitSha}}
+      add_output output "${commitId}"
